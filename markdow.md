@@ -1,6 +1,20 @@
 Aqui está a especificação técnica detalhada do Sistema de Biblioteca Digital, baseada na arquitetura e nos requisitos fornecidos.
 
-## Configurações e Ambiente
+## Sessões e Variáveis de Ambiente
+
+---
+
+### Variáveis de Sessão
+
+Para garantir a consistência no acesso aos dados do usuário, as seguintes chaves de sessão devem ser utilizadas:
+
+- `usuario_id`: ID do usuário logado.
+- `nome`: Nome do usuário logado.
+- `papel`: Papel do usuário logado ('ADMIN_INICIAL', 'ADMIN', 'BIBLIOTECARIO', 'LEITOR').
+
+NUNCA utilize outras chaves para estas informações (ex: `user_papel` está incorreto).
+
+### Configurações e Ambiente
 
 ---
 
@@ -113,7 +127,7 @@ CLASSE LivroModel:
 ATRIBUTOS: id (INT, PK), titulo (VARCHAR), autor (VARCHAR), categoria (VARCHAR), status (VARCHAR: 'DISPONIVEL', 'EMPRESTADO')
 MÉTODO salvar(): INSERIR no banco de dados.
 MÉTODO buscar_todos(filtros): RETORNAR registros que correspondam a titulo, autor ou categoria.
-MÉTODO buscar_por_id(id): RETORNAR o livro correspondente ao id.
+MÉTODO buscar_por_id(id): RETORNAR o livro correspondente ao id, incluindo o campo status.
 MÉTODO atualizar_status(novo_status): ATUALIZAR status no banco.
 
 `biblioteca_digital/app/models/emprestimo_model.py`

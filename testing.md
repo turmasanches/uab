@@ -60,7 +60,7 @@ Os testes utilizarão um banco de dados SQLite em memória (`:memory:`) ou um ar
 | ID | Cenário | Prioridade | Descrição |
 |:---|:---|:---|:---|
 | TEST-LOAN-01 | Solicitação de Empréstimo | Crítica | Validar se um 'LEITOR' pode solicitar um livro disponível. |
-| TEST-LOAN-02 | Livro Indisponível | Crítica | **Cenário Crítico**: Impedir a solicitação de um livro que já está com status 'EMPRESTADO'. |
+| TEST-LOAN-02 | Livro Indisponível | Crítica | Impedir a solicitação de um livro que não esteja com status 'DISPONIVEL' (validação estrita do valor retornado pelo banco). |
 | TEST-LOAN-03 | Aprovação de Empréstimo | Alta | Validar se o status do livro muda para 'EMPRESTADO' após aprovação do bibliotecário. |
 | TEST-LOAN-04 | Devolução de Livro | Alta | Garantir que o livro volte a ficar 'DISPONIVEL' após a devolução. |
 
@@ -70,6 +70,12 @@ Os testes utilizarão um banco de dados SQLite em memória (`:memory:`) ou um ar
 |:---|:---|:---|:---|
 | TEST-REP-01 | Acesso a Relatórios | Alta | Validar se usuários sem permissão (LEITOR) são bloqueados. |
 | TEST-REP-02 | Integridade dos Dados | Média | Verificar se a contagem de empréstimos reflete a realidade do banco de dados. |
+
+### 3.6. Segurança e Consistência de Sessão
+
+| ID | Cenário | Prioridade | Descrição |
+|:---|:---|:---|:---|
+| TEST-SESS-01 | Consistência de Chaves de Sessão | Alta | Validar se as chaves da sessão (`usuario_id`, `nome`, `papel`) estão sendo utilizadas de forma consistente em todo o sistema, evitando chaves alternativas (ex: `user_papel`). |
 
 ---
 
