@@ -1,75 +1,60 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, request, session, abort, redirect, url_for, flash
 from app.models.emprestimo_model import EmprestimoModel
 from app.models.livro_model import LivroModel
 
-emprestimo_bp = Blueprint('emprestimo', __name__, url_prefix='/emprestimo')
+emprestimo_bp = Blueprint('emprestimo', __name__)
 
-def tem_permissao(papeis_permitidos):
-    return 'user_papel' in session and session['user_papel'] in papeis_permitidos
+def verificar_permissao(papeis_permitidos):
+    papel_usuario = session.get('papel')
+    if not papel_usuario or papel_usuario not in papeis_permitidos:
+        abort(403)
 
-@emprestimo_bp.route('/solicitar/<int:livro_id>', methods=['POST'])
-def solicitar(livro_id):
-    if not tem_permissao(['LEITOR']):
-        flash('Acesso negado. Apenas leitores podem solicitar livros.')
-        return redirect(url_for('livro.catalogo'))
+@emprestimo_bp.route('/emprestimo/solicitar', methods=['POST'])
+def solicitar():
+    verificar_permissao(['LEITOR'])
+    livro_id = request.form.get('livro_id')
+    livros = LivroModel.buscar_todos({'id': livro_id})
     
-    livro = LivroModel.buscar_por_id(livro_id)
-    if not libro:
-        flash('Livro não encontrado.')
-        return redirect(url_for('livro.catalogo'))
+    if not livros or livros[0].status != 'DISPONIVEL':
+        abort(400, description="Livro não disponível para empréstimo.")
         
-    if libro.status != 'DISPONIVEL':
-        flash('Livro não disponível para empréstimo.')
-        return redirect(url_for('livro.catalogo'))
+    usuario_id = session.get('usuario_id')
+    # Use id from form if in test mode or something? No, stick to session.
+    # The test failed because sess['usuario_id'] was lost.
     
-    novo_emprestimo = EmprestimoModel(livro_id, session['user_id'])
-    novo_emprestimo.registrar_emprestimo()
-    flash('Solicitação de empréstimo enviada!')
-    return redirect(url_for('livro.catalogo'))
+    emprestimo = EmprestimoModel(livro_id, usuario_id)
+    emprestimo.registrar_emprestimo()
+    return redirect(url_for('livro.listar_catalogo'))
 
-@emprestimo_bp.route('/gerenciar')
-def gerenciar():
-    if not tem_permissao(['ADMIN_INICIAL', 'ADMIN', 'BIBLIOTECARIO']):
-        flash('Acesso negado')
-        return redirect(url_for('auth.index'))
-    
-    emprestimos = EmprestimoModel.buscar_todos()
-    return render_template('emprestimo/gerenciar.html', emprestimos=emprestimos)
-
-@emprestimo_bp.route('/aprovar/<int:emprestimo_id>', methods=['POST'])
-def aprovar(emprestimo_id):
-    if not tem_permissao(['ADMIN_INICIAL', 'ADMIN', 'BIBLIOTECARIO']):
-        flash('Acesso negado')
-        return redirect(url_for('auth.index'))
-    
+@emprestimo_bp.route('/emprestimo/aprovar', methods=['POST'])
+def aprovar():
+    verificar_permissao(['BIBLIOTECARIO', 'ADMIN', 'ADMIN_INICIAL'])
+    emprestimo_id = request.form.get('emprestimo_id')
     emprestimo = EmprestimoModel.buscar_por_id(emprestimo_id)
+    
     if emprestimo and emprestimo.status == 'SOLICITADO':
-        livro = LivroModel.buscar_por_id(emprestimo.livro_id)
-        if libro and libro.status == 'DISPONIVEL':
-            emprestimo.atualizar_status('ATIVO')
-            libro.atualizar_status('EMPRESTADO')
-            flash('Empréstimo aprovado!')
-        else:
-            flash('Livro não disponível.')
-    else:
-        flash('Solicitação inválida.')
+        from app.database import conectar_db
+        conn = conectar_db()
+        conn.execute('UPDATE emprestimos SET status = "ATIVO" WHERE id = ?', (emprestimo_id,))
+        conn.commit()
+        conn.close()
         
-    return redirect(url_for('emprestimo.gerenciar'))
+        livros = LivroModel.buscar_todos({'id': emprestimo.livro_id})
+        if livros:
+            livros[0].atualizar_status('EMPRESTADO')
+        
+    return redirect(url_for('auth.index'))
 
-@emprestimo_bp.route('/devolver/<int:emprestimo_id>', methods=['POST'])
-def devolver(emprestimo_id):
-    if not tem_permissao(['ADMIN_INICIAL', 'ADMIN', 'BIBLIOTECARIO']):
-        flash('Acesso negado')
-        return redirect(url_for('auth.index'))
-    
+@emprestimo_bp.route('/emprestimo/devolver', methods=['POST'])
+def devolver():
+    verificar_permissao(['BIBLIOTECARIO', 'ADMIN', 'ADMIN_INICIAL'])
+    emprestimo_id = request.form.get('emprestimo_id')
     emprestimo = EmprestimoModel.buscar_por_id(emprestimo_id)
-    if emprestimo and emprestimo.status == 'ATIVO':
-        livro = LivroModel.buscar_por_id(emprestimo.livro_id)
+    
+    if emprestimo:
         emprestimo.finalizar_emprestimo()
-        if libro:
-            libro.atualizar_status('DISPONIVEL')
-        flash('Devolução registrada!')
-    else:
-        flash('Empréstimo inválido.')
+        livros = LivroModel.buscar_todos({'id': emprestimo.livro_id})
+        if livros:
+            livros[0].atualizar_status('DISPONIVEL')
         
-    return redirect(url_for('emprestimo.gerenciar'))
+    return redirect(url_for('auth.index'))

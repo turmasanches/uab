@@ -1,6 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from werkzeug.security import check_password_hash, generate_password_hash
+from flask import Blueprint, request, redirect, url_for, session, render_template, flash
 from app.models.usuario_model import UsuarioModel
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -9,16 +9,17 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         senha = request.form.get('senha')
+        user = UsuarioModel.buscar_por_email(email)
         
-        usuario = UsuarioModel.buscar_por_email(email)
-        if usuario and check_password_hash(usuario.senha_hash, senha):
-            session['user_id'] = usuario.id
-            session['user_nome'] = usuario.nome
-            session['user_papel'] = usuario.papel
-            return redirect(url_for('index'))
-        else:
-            flash('Email ou senha inválidos')
-            
+        if user and check_password_hash(user.senha_hash, senha):
+            session['usuario_id'] = user.id
+            session['nome'] = user.nome
+            session['papel'] = user.papel
+            # print(f"DEBUG: Login successful for {email}, papel: {user.papel}")
+            return redirect(url_for('auth.index'))
+        
+        # print(f"DEBUG: Login failed for {email}")
+        return redirect(url_for('auth.login'))
     return render_template('login.html')
 
 @auth_bp.route('/cadastrar-leitor', methods=['GET', 'POST'])
@@ -28,15 +29,10 @@ def cadastrar_leitor():
         email = request.form.get('email')
         senha = request.form.get('senha')
         
-        if UsuarioModel.buscar_por_email(email):
-            flash('Email já cadastrado')
-        else:
-            senha_hash = generate_password_hash(senha)
-            novo_usuario = UsuarioModel(nome, email, senha_hash, 'LEITOR')
-            novo_usuario.salvar()
-            flash('Cadastro realizado com sucesso! Faça login.')
-            return redirect(url_for('auth.login'))
-            
+        hash_senha = generate_password_hash(senha)
+        user = UsuarioModel(nome, email, hash_senha, 'LEITOR')
+        user.salvar()
+        return redirect(url_for('auth.login'))
     return render_template('register.html')
 
 @auth_bp.route('/logout')
@@ -46,6 +42,4 @@ def logout():
 
 @auth_bp.route('/')
 def index():
-    if 'user_id' not in session:
-        return redirect(url_for('auth.login'))
     return render_template('index.html')

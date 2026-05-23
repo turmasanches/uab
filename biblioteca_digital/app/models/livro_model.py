@@ -10,56 +10,45 @@ class LivroModel:
 
     def salvar(self):
         conn = conectar_db()
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO livros (titulo, autor, categoria, status)
-            VALUES (?, ?, ?, ?)
-        ''', (self.titulo, self.autor, self.categoria, self.status))
-        self.id = cursor.lastrowid
-        conn.commit()
-        conn.close()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO livros (titulo, autor, categoria, status)
+                VALUES (?, ?, ?, ?)
+            ''', (self.titulo, self.autor, self.categoria, self.status))
+            conn.commit()
+            self.id = cursor.lastrowid
+        finally:
+            conn.close()
 
     @staticmethod
     def buscar_todos(filtros=None):
         conn = conectar_db()
-        cursor = conn.cursor()
-        query = 'SELECT * FROM livros'
-        params = []
-        if filtros:
-            conditions = []
-            if 'titulo' in filtros and filtros['titulo']:
-                conditions.append('titulo LIKE ?')
-                params.append(f"%{filtros['titulo']}%")
-            if 'autor' in filtros and filtros['autor']:
-                conditions.append('autor LIKE ?')
-                params.append(f"%{filtros['autor']}%")
-            if 'categoria' in filtros and filtros['categoria']:
-                conditions.append('categoria LIKE ?')
-                params.append(f"%{filtros['categoria']}%")
+        try:
+            cursor = conn.cursor()
+            query = 'SELECT * FROM livros'
+            params = []
+            if filtros:
+                conditions = []
+                for key, value in filtros.items():
+                    if value:
+                        conditions.append(f"{key} LIKE ?")
+                        params.append(f"%{value}%")
+                if conditions:
+                    query += " WHERE " + " AND ".join(conditions)
             
-            if conditions:
-                query += ' WHERE ' + ' AND '.join(conditions)
-        
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        conn.close()
-        return [LivroModel(row['titulo'], row['autor'], row['categoria'], row['status'], row['id']) for row in rows]
-
-    @staticmethod
-    def buscar_por_id(id):
-        conn = conectar_db()
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM livros WHERE id = ?', (id,))
-        row = cursor.fetchone()
-        conn.close()
-        if row:
-            return LivroModel(row['titulo'], row['autor'], row['categoria'], row['status'], row['id'])
-        return None
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+            return [LivroModel(row['titulo'], row['autor'], row['categoria'], row['status'], row['id']) for row in rows]
+        finally:
+            conn.close()
 
     def atualizar_status(self, novo_status):
         conn = conectar_db()
-        cursor = conn.cursor()
-        cursor.execute('UPDATE livros SET status = ? WHERE id = ?', (novo_status, self.id))
-        conn.commit()
-        conn.close()
-        self.status = novo_status
+        try:
+            cursor = conn.cursor()
+            cursor.execute('UPDATE livros SET status = ? WHERE id = ?', (novo_status, self.id))
+            conn.commit()
+            self.status = novo_status
+        finally:
+            conn.close()

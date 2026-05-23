@@ -46,7 +46,7 @@
                 </span>
             </td>
             <td>
-                {% if libro.status == 'DISPONIVEL' and session.get('user_papel') == 'LEITOR' %}
+                {% if livro.status == 'DISPONIVEL' and session.get('papel') == 'LEITOR' %}
                 <form action="{{ url_for('emprestimo.solicitar', livro_id=livro.id) }}" method="POST" style="display:inline;">
                     <button type="submit" class="btn btn-sm btn-primary">Solicitar</button>
                 </form>

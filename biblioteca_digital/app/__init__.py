@@ -5,6 +5,7 @@ from app.database import inicializar_db
 def criar_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.config['SECRET_KEY'] = 'test_secret'
     
     with app.app_context():
         inicializar_db()

@@ -4,17 +4,16 @@ from werkzeug.security import generate_password_hash
 from config import Config
 
 def conectar_db():
-    # Ensure the directory exists
-    os.makedirs(os.path.dirname(Config.DATABASE_PATH), exist_ok=True)
-    conn = sqlite3.connect(Config.DATABASE_PATH)
+    conn = sqlite3.connect(os.environ.get('DATABASE_PATH', Config.DATABASE_PATH))
     conn.row_factory = sqlite3.Row
     return conn
 
 def inicializar_db():
+    db_path = os.environ.get('DATABASE_PATH', Config.DATABASE_PATH)
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)
     conn = conectar_db()
     cursor = conn.cursor()
     
-    # Create Usuarios table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,7 +24,6 @@ def inicializar_db():
     )
     ''')
     
-    # Create Livros table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS livros (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,7 +34,6 @@ def inicializar_db():
     )
     ''')
     
-    # Create Emprestimos table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS emprestimos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -50,8 +47,7 @@ def inicializar_db():
     )
     ''')
     
-    # Check if Usuarios is empty and insert initial admin
-    cursor.execute('SELECT COUNT(*) FROM usuarios')
+    cursor.execute('SELECT COUNT(*) FROM usuarios WHERE papel = "ADMIN_INICIAL"')
     if cursor.fetchone()[0] == 0:
         senha_hash = generate_password_hash(Config.PROPRIETARIO_PASSWORD)
         cursor.execute('''

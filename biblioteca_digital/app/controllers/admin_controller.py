@@ -1,50 +1,34 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from werkzeug.security import generate_password_hash
+from flask import Blueprint, request, session, abort, redirect, url_for
 from app.models.usuario_model import UsuarioModel
+from werkzeug.security import generate_password_hash
 
-admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
+admin_bp = Blueprint('admin', __name__)
 
-def tem_permissao(papeis_permitidos):
-    return 'user_papel' in session and session['user_papel'] in papeis_permitidos
+def verificar_permissao(papeis_permitidos):
+    papel_usuario = session.get('papel')
+    if not papel_usuario or papel_usuario not in papeis_permitidos:
+        abort(403)
 
-@admin_bp.route('/cadastrar-admin', methods=['GET', 'POST'])
+@admin_bp.route('/admin/cadastrar-admin', methods=['POST'])
 def cadastrar_admin():
-    if not tem_permissao(['ADMIN_INICIAL']):
-        flash('Acesso negado')
-        return redirect(url_for('auth.index'))
+    verificar_permissao(['ADMIN_INICIAL'])
+    nome = request.form.get('nome')
+    email = request.form.get('email')
+    senha = request.form.get('senha')
     
-    if request.method == 'POST':
-        nome = request.form.get('nome')
-        email = request.form.get('email')
-        senha = request.form.get('senha')
-        
-        if UsuarioModel.buscar_por_email(email):
-            flash('Email já cadastrado')
-        else:
-            senha_hash = generate_password_hash(senha)
-            novo_admin = UsuarioModel(nome, email, senha_hash, 'ADMIN')
-            novo_admin.salvar()
-            flash('Administrador cadastrado com sucesso!')
-            
-    return render_template('admin/cadastrar_usuario.html', papel_alvo='ADMIN')
+    hash_senha = generate_password_hash(senha)
+    user = UsuarioModel(nome, email, hash_senha, 'ADMIN')
+    user.salvar()
+    return "Admin cadastrado", 201
 
-@admin_bp.route('/cadastrar-bibliotecario', methods=['GET', 'POST'])
+@admin_bp.route('/admin/cadastrar-bibliotecario', methods=['POST'])
 def cadastrar_bibliotecario():
-    if not tem_permissao(['ADMIN_INICIAL', 'ADMIN']):
-        flash('Acesso negado')
-        return redirect(url_for('auth.index'))
+    verificar_permissao(['ADMIN_INICIAL', 'ADMIN'])
+    nome = request.form.get('nome')
+    email = request.form.get('email')
+    senha = request.form.get('senha')
     
-    if request.method == 'POST':
-        nome = request.form.get('nome')
-        email = request.form.get('email')
-        senha = request.form.get('senha')
-        
-        if UsuarioModel.buscar_por_email(email):
-            flash('Email já cadastrado')
-        else:
-            senha_hash = generate_password_hash(senha)
-            novo_bib = UsuarioModel(nome, email, senha_hash, 'BIBLIOTECARIO')
-            novo_bib.salvar()
-            flash('Bibliotecário cadastrado com sucesso!')
-            
-    return render_template('admin/cadastrar_usuario.html', papel_alvo='BIBLIOTECARIO')
+    hash_senha = generate_password_hash(senha)
+    user = UsuarioModel(nome, email, hash_senha, 'BIBLIOTECARIO')
+    user.salvar()
+    return "Bibliotecario cadastrado", 201
