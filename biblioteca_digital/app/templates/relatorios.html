@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Relatórios e Métricas</h2>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Empréstimos por Status</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for row in dados.status_contagem %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ row[0] }}
+                        <span class="badge bg-primary rounded-pill">{{ row[1] }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Top 5 Livros</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for row in dados.top_livros %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ row[0] }}
+                        <span class="badge bg-success rounded-pill">{{ row[1] }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">Livros por Categoria</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for row in dados.categorias_dist %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ row[0] }}
+                        <span class="badge bg-info rounded-pill">{{ row[1] }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

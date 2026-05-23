@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Catálogo de Livros</h2>
+
+<form method="GET" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="titulo" class="form-control" placeholder="Título" value="{{ request.args.get('titulo', '') }}">
+    </div>
+    <div class="col-md-3">
+        <input type="text" name="autor" class="form-control" placeholder="Autor" value="{{ request.args.get('autor', '') }}">
+    </div>
+    <div class="col-md-3">
+        <input type="text" name="categoria" class="form-control" placeholder="Categoria" value="{{ request.args.get('categoria', '') }}">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-secondary w-100">Filtrar</button>
+    </div>
+</form>
+
+{% if session.get('user_papel') in ['ADMIN', 'ADMIN_INICIAL', 'BIBLIOTECARIO'] %}
+<div class="mb-3">
+    <a href="{{ url_for('livro.cadastrar_livro') }}" class="btn btn-success">Cadastrar Novo Livro</a>
+</div>
+{% endif %}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Categoria</th>
+            <th>Status</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for livro in livros %}
+        <tr>
+            <td>{{ livro.titulo }}</td>
+            <td>{{ livro.autor }}</td>
+            <td>{{ livro.categoria }}</td>
+            <td>
+                <span class="badge {% if livro.status == 'DISPONIVEL' %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                    {{ livro.status }}
+                </span>
+            </td>
+            <td>
+                {% if libro.status == 'DISPONIVEL' and session.get('user_papel') == 'LEITOR' %}
+                <form action="{{ url_for('emprestimo.solicitar', livro_id=livro.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-primary">Solicitar</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

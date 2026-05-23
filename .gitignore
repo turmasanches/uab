@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Database
+biblioteca_digital/app/db/biblioteca.db
+
+# IDEs
+.vscode/
+.idea/

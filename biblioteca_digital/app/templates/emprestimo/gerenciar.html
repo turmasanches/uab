@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Gerenciar Empréstimos</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Livro</th>
+            <th>Usuário</th>
+            <th>Data Solicitação</th>
+            <th>Status</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for emp in emprestimos %}
+        <tr>
+            <td>{{ emp.livro_titulo }}</td>
+            <td>{{ emp.usuario_nome }}</td>
+            <td>{{ emp.data_solicitacao }}</td>
+            <td>
+                <span class="badge {% if emp.status == 'SOLICITADO' %}bg-info{% elif emp.status == 'ATIVO' %}bg-primary{% else %}bg-secondary{% endif %}">
+                    {{ emp.status }}
+                </span>
+            </td>
+            <td>
+                {% if emp.status == 'SOLICITADO' %}
+                <form action="{{ url_for('emprestimo.aprovar', emprestimo_id=emp.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-success">Aprovar</button>
+                </form>
+                {% elif emp.status == 'ATIVO' %}
+                <form action="{{ url_for('emprestimo.devolver', emprestimo_id=emp.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-warning text-dark">Devolver</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
