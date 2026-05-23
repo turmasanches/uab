@@ -23,6 +23,20 @@ class EmprestimoModel:
         finally:
             conn.close()
 
+    def aprovar_emprestimo(self):
+        conn = conectar_db()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE emprestimos 
+                SET status = 'ATIVO' 
+                WHERE id = ?
+            ''', (self.id,))
+            conn.commit()
+            self.status = 'ATIVO'
+        finally:
+            conn.close()
+
     def finalizar_emprestimo(self):
         conn = conectar_db()
         try:

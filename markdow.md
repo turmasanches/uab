@@ -125,7 +125,8 @@ MÉTODO finalizar_emprestimo(): ATUALIZAR status para 'DEVOLVIDO' e preencher da
 ROTA POST /login:
 RECEBER email, senha
 BUSCAR usuario_model por email
-SE senha for válida: INICIAR sessão, REDIRECIONAR painel
+SE senha for válida: INICIAR sessão (armazenar nome e papel), REDIRECIONAR painel
+# O nome do usuário logado deve ser exibido na barra de menu em todas as páginas protegidas.
 ROTA POST /cadastrar-leitor:
 RECEBER nome, email, senha
 CRIAR hash da senha
@@ -155,6 +156,7 @@ ROTA GET /catalogo:
 RECEBER parametros_de_busca
 CHAMAR livro_model.buscar_todos(parametros)
 RENDERIZAR template 'catalogo.html' com resultados
+# A opção para o cadastro de livros deve estar disponível no menu para usuários com papel 'ADMIN' ou 'BIBLIOTECARIO'.
 ROTA POST /livro/cadastrar:
 VERIFICAR permissao ('BIBLIOTECARIO', 'ADMIN')
 RECEBER dados

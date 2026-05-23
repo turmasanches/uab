@@ -83,3 +83,11 @@ def test_prevent_loan_of_borrowed_book(client, app):
 
     response = client.post('/emprestimo/solicitar', data={'livro_id': book.id})
     assert response.status_code == 400
+
+def test_loan_access_unauthorized(client, app):
+    with client.session_transaction() as sess:
+        sess['usuario_id'] = 1
+        sess['papel'] = 'ADMIN' # Admin cannot solicit a loan, only LEITOR
+    
+    response = client.post('/emprestimo/solicitar', data={'livro_id': 1})
+    assert response.status_code == 403

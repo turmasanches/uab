@@ -33,11 +33,7 @@ def aprovar():
     emprestimo = EmprestimoModel.buscar_por_id(emprestimo_id)
     
     if emprestimo and emprestimo.status == 'SOLICITADO':
-        from app.database import conectar_db
-        conn = conectar_db()
-        conn.execute('UPDATE emprestimos SET status = "ATIVO" WHERE id = ?', (emprestimo_id,))
-        conn.commit()
-        conn.close()
+        emprestimo.aprovar_emprestimo()
         
         livros = LivroModel.buscar_todos({'id': emprestimo.livro_id})
         if livros:

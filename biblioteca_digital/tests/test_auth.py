@@ -44,6 +44,11 @@ def test_reader_registration(client):
     assert user is not None
     assert user.papel == 'LEITOR'
 
+def test_get_registration_page(client):
+    response = client.get('/cadastrar-leitor')
+    assert response.status_code == 200
+    assert b"Cadastrar" in response.data
+
 def test_login_success(client, app):
     with app.app_context():
         user = UsuarioModel("Login User", "login@example.com", generate_password_hash("pass"), "LEITOR")
@@ -85,3 +90,32 @@ def test_rbac_admin_only(client, app):
         'nome': 'New Admin', 'email': 'a@e.com', 'senha': 'p'
     })
     assert response.status_code == 403
+
+def test_logout(client, app):
+    client.post('/cadastrar-leitor', data={
+        'nome': 'Reader', 'email': 'logout@test.com', 'senha': 'p'
+    })
+    client.post('/login', data={'email': 'logout@test.com', 'senha': 'p'})
+    
+    with client.session_transaction() as sess:
+        assert 'usuario_id' in sess
+        
+    response = client.get('/logout', follow_redirects=True)
+    assert response.status_code == 200
+    with client.session_transaction() as sess:
+        assert 'usuario_id' not in sess
+
+def test_index_route(client):
+    response = client.get('/')
+    assert response.status_code == 200
+
+def test_user_name_in_menu(client, app):
+    with app.app_context():
+        user = UsuarioModel("Visible User", "visible@example.com", generate_password_hash("pass"), "LEITOR")
+        user.salvar()
+    
+    client.post('/login', data={'email': 'visible@example.com', 'senha': 'pass'})
+    
+    response = client.get('/', follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Visible User" in response.data

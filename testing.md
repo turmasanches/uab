@@ -36,6 +36,7 @@ Os testes utilizarão um banco de dados SQLite em memória (`:memory:`) ou um ar
 | TEST-AUTH-02 | Login com senha inválida | Crítica | Garantir que o acesso seja negado para credenciais incorretas. |
 | TEST-AUTH-03 | Cadastro de Leitor | Alta | Validar se o autocadastro cria corretamente um usuário com papel 'LEITOR'. |
 | TEST-AUTH-04 | Logout | Média | Verificar se a sessão é devidamente destruída ao deslogar. |
+| TEST-AUTH-05 | Exibição de Usuário no Menu | Média | Validar se o nome do usuário logado aparece na barra de menu em páginas protegidas. |
 
 ### 3.2. Gerenciamento de Usuários (RBAC) (`admin_controller.py`)
 
@@ -51,7 +52,8 @@ Os testes utilizarão um banco de dados SQLite em memória (`:memory:`) ou um ar
 |:---|:---|:---|:---|
 | TEST-BOOK-01 | Busca no Catálogo | Alta | Validar se os filtros de busca (título, autor, categoria) retornam os resultados corretos. |
 | TEST-BOOK-02 | Cadastro de Livro (Permissão) | Crítica | Validar se apenas 'BIBLIOTECARIO' ou 'ADMIN' podem cadastrar livros. |
-| TEST-BOOK-03 | Cadastro com dados incompletos | Média | Garantir que o sistema valide campos obrigatórios no cadastro. |
+| TEST-BOOK-03 | Opção de Cadastro no Menu | Alta | Garantir que a opção 'Cadastrar Livro' só apareça para usuários com papel ADMIN ou BIBLIOTECARIO. |
+| TEST-BOOK-04 | Cadastro com dados incompletos | Média | Garantir que o sistema valide campos obrigatórios no cadastro. |
 
 ### 3.4. Fluxo de Empréstimo (Cenários Críticos) (`emprestimo_controller.py`)
 

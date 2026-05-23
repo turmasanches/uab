@@ -11,11 +11,11 @@
         <div class="container">
             <a class="navbar-brand" href="{{ url_for('auth.index') }}">Biblioteca Digital</a>
             <div class="navbar-nav ms-auto">
-                {% if session.get('user_id') %}
-                    <span class="navbar-text me-3">Olá, {{ session.get('user_nome') }} ({{ session.get('user_papel') }})</span>
-                    <a class="nav-link" href="{{ url_for('livro.catalogo') }}">Catálogo</a>
-                    {% if session.get('user_papel') in ['ADMIN', 'ADMIN_INICIAL', 'BIBLIOTECARIO'] %}
-                        <a class="nav-link" href="{{ url_for('emprestimo.gerenciar') }}">Empréstimos</a>
+                {% if session.get('usuario_id') %}
+                    <span class="navbar-text me-3">Olá, {{ session.get('nome') }}</span>
+                    <a class="nav-link" href="{{ url_for('livro.listar_catalogo') }}">Catálogo</a>
+                    {% if session.get('papel') in ['ADMIN', 'ADMIN_INICIAL', 'BIBLIOTECARIO'] %}
+                        <a class="nav-link" href="{{ url_for('livro.cadastrar_livro') }}">Cadastrar Livro</a>
                         <a class="nav-link" href="{{ url_for('relatorio.relatorios') }}">Relatórios</a>
                     {% endif %}
                     <a class="nav-link" href="{{ url_for('auth.logout') }}">Sair</a>

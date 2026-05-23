@@ -33,6 +33,19 @@ def test_usuario_model_salvar_e_buscar():
     assert fetched_user.nome == "Test User"
     assert fetched_user.papel == "LEITOR"
 
+def test_usuario_model_duplicate_email():
+    user1 = UsuarioModel("User 1", "dup@example.com", "h", "LEITOR")
+    user1.salvar()
+    user2 = UsuarioModel("User 2", "dup@example.com", "h", "LEITOR")
+    user2.salvar()
+    
+    # Should not have changed the ID or created a new one
+    assert user2.id is None
+
+def test_usuario_model_not_found():
+    user = UsuarioModel.buscar_por_email("nonexistent@example.com")
+    assert user is None
+
 def test_livro_model_salvar_e_buscar():
     book = LivroModel("Test Title", "Test Author", "Test Category")
     book.salvar()
@@ -69,3 +82,7 @@ def test_emprestimo_model_fluxo():
     
     fetched_loan = EmprestimoModel.buscar_por_id(loan.id)
     assert fetched_loan.status == "DEVOLVIDO"
+
+def test_emprestimo_model_not_found():
+    loan = EmprestimoModel.buscar_por_id(999)
+    assert loan is None
