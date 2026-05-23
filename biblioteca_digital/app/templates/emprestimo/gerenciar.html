@@ -26,11 +26,13 @@
             </td>
             <td>
                 {% if emp.status == 'SOLICITADO' %}
-                <form action="{{ url_for('emprestimo.aprovar', emprestimo_id=emp.id) }}" method="POST" style="display:inline;">
+                <form action="{{ url_for('emprestimo.aprovar') }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="emprestimo_id" value="{{ emp.id }}">
                     <button type="submit" class="btn btn-sm btn-success">Aprovar</button>
                 </form>
                 {% elif emp.status == 'ATIVO' %}
-                <form action="{{ url_for('emprestimo.devolver', emprestimo_id=emp.id) }}" method="POST" style="display:inline;">
+                <form action="{{ url_for('emprestimo.devolver') }}" method="POST" style="display:inline;">
+                    <input type="hidden" name="emprestimo_id" value="{{ emp.id }}">
                     <button type="submit" class="btn btn-sm btn-warning text-dark">Devolver</button>
                 </form>
                 {% endif %}

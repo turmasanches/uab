@@ -64,3 +64,18 @@ class EmprestimoModel:
         finally:
             conn.close()
         return None
+
+    @staticmethod
+    def buscar_todos():
+        conn = conectar_db()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT e.*, l.titulo as livro_titulo, u.nome as usuario_nome
+                FROM emprestimos e
+                JOIN livros l ON e.livro_id = l.id
+                JOIN usuarios u ON e.usuario_id = u.id
+            ''')
+            return cursor.fetchall()
+        finally:
+            conn.close()

@@ -1,4 +1,4 @@
-from flask import Blueprint, request, session, abort, redirect, url_for, flash
+from flask import Blueprint, request, session, abort, redirect, url_for, flash, render_template
 from app.models.emprestimo_model import EmprestimoModel
 from app.models.livro_model import LivroModel
 
@@ -8,6 +8,12 @@ def verificar_permissao(papeis_permitidos):
     papel_usuario = session.get('papel')
     if not papel_usuario or papel_usuario not in papeis_permitidos:
         abort(403)
+
+@emprestimo_bp.route('/emprestimo/gerenciar', methods=['GET'])
+def gerenciar():
+    verificar_permissao(['BIBLIOTECARIO', 'ADMIN', 'ADMIN_INICIAL'])
+    emprestimos = EmprestimoModel.buscar_todos()
+    return render_template('emprestimo/gerenciar.html', emprestimos=emprestimos)
 
 @emprestimo_bp.route('/emprestimo/solicitar', methods=['POST'])
 def solicitar():
@@ -22,6 +28,7 @@ def solicitar():
     
     emprestimo = EmprestimoModel(livro_id, usuario_id)
     emprestimo.registrar_emprestimo()
+    livro.atualizar_status('REQUISITADO')
     return redirect(url_for('livro.listar_catalogo'))
 
 @emprestimo_bp.route('/emprestimo/aprovar', methods=['POST'])

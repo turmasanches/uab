@@ -16,6 +16,7 @@
                     <a class="nav-link" href="{{ url_for('livro.listar_catalogo') }}">Catálogo</a>
                     {% if session.get('papel') in ['ADMIN', 'ADMIN_INICIAL', 'BIBLIOTECARIO'] %}
                         <a class="nav-link" href="{{ url_for('livro.cadastrar_livro') }}">Cadastrar Livro</a>
+                        <a class="nav-link" href="{{ url_for('emprestimo.gerenciar') }}">Gerenciar Empréstimos</a>
                         <a class="nav-link" href="{{ url_for('relatorio.relatorios') }}">Relatórios</a>
                     {% endif %}
                     <a class="nav-link" href="{{ url_for('auth.logout') }}">Sair</a>

@@ -45,6 +45,9 @@ def test_loan_lifecycle(client, app):
     loan = EmprestimoModel.buscar_por_id(1)
     assert loan is not None
     assert loan.status == 'SOLICITADO'
+    # Verify book status
+    updated_book = LivroModel.buscar_todos({'id': book.id})[0]
+    assert updated_book.status == 'REQUISITADO'
     
     # 2. Librarian approves loan
     with client.session_transaction() as sess:
@@ -91,3 +94,25 @@ def test_loan_access_unauthorized(client, app):
     
     response = client.post('/emprestimo/solicitar', data={'livro_id': 1})
     assert response.status_code == 403
+
+def test_admin_approves_loan(client, app):
+    with app.app_context():
+        reader = UsuarioModel("Reader", "reader@test.com", generate_password_hash("password"), "LEITOR")
+        reader.salvar()
+        admin = UsuarioModel("Admin", "admin@test.com", generate_password_hash("password"), "ADMIN")
+        admin.salvar()
+        book = LivroModel("Python Basics", "Guido", "Programming")
+        book.salvar()
+        loan = EmprestimoModel(book.id, reader.id)
+        loan.registrar_emprestimo()
+
+    with client.session_transaction() as sess:
+        sess['usuario_id'] = admin.id
+        sess['papel'] = 'ADMIN'
+        sess['nome'] = 'Admin'
+
+    response = client.post('/emprestimo/aprovar', data={'emprestimo_id': 1}, follow_redirects=True)
+    assert response.status_code == 200
+
+    updated_loan = EmprestimoModel.buscar_por_id(1)
+    assert updated_loan.status == 'ATIVO'
