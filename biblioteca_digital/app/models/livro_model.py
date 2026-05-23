@@ -43,6 +43,19 @@ class LivroModel:
         finally:
             conn.close()
 
+    @staticmethod
+    def buscar_por_id(id):
+        conn = conectar_db()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('SELECT * FROM livros WHERE id = ?', (id,))
+            row = cursor.fetchone()
+            if row:
+                return LivroModel(row['titulo'], row['autor'], row['categoria'], row['status'], row['id'])
+        finally:
+            conn.close()
+        return None
+
     def atualizar_status(self, novo_status):
         conn = conectar_db()
         try:

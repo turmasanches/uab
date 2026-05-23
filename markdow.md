@@ -20,9 +20,21 @@ DEBUG_MODE=True
 * ação: criar
 * descrição: Lista as dependências do Python para o projeto.
 * pseudocódigo:
+blinker==1.9.0
+click==8.4.1
+coverage==7.14.0
 Flask==3.0.0
-Werkzeug==3.0.0
+iniconfig==2.3.0
+itsdangerous==2.2.0
 Jinja2==3.1.2
+MarkupSafe==3.0.3
+packaging==26.2
+pluggy==1.6.0
+Pygments==2.20.0
+pytest==9.0.3
+pytest-flask==1.3.0
+python-dotenv==1.2.2
+Werkzeug==3.0.0
 
 `biblioteca_digital/Dockerfile`
 
@@ -101,6 +113,7 @@ CLASSE LivroModel:
 ATRIBUTOS: id (INT, PK), titulo (VARCHAR), autor (VARCHAR), categoria (VARCHAR), status (VARCHAR: 'DISPONIVEL', 'EMPRESTADO')
 MÉTODO salvar(): INSERIR no banco de dados.
 MÉTODO buscar_todos(filtros): RETORNAR registros que correspondam a titulo, autor ou categoria.
+MÉTODO buscar_por_id(id): RETORNAR o livro correspondente ao id.
 MÉTODO atualizar_status(novo_status): ATUALIZAR status no banco.
 
 `biblioteca_digital/app/models/emprestimo_model.py`

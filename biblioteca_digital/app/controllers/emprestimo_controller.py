@@ -13,14 +13,12 @@ def verificar_permissao(papeis_permitidos):
 def solicitar():
     verificar_permissao(['LEITOR'])
     livro_id = request.form.get('livro_id')
-    livros = LivroModel.buscar_todos({'id': livro_id})
+    livro = LivroModel.buscar_por_id(livro_id)
     
-    if not livros or livros[0].status != 'DISPONIVEL':
+    if not livro or livro.status != 'DISPONIVEL':
         abort(400, description="Livro não disponível para empréstimo.")
         
     usuario_id = session.get('usuario_id')
-    # Use id from form if in test mode or something? No, stick to session.
-    # The test failed because sess['usuario_id'] was lost.
     
     emprestimo = EmprestimoModel(livro_id, usuario_id)
     emprestimo.registrar_emprestimo()
