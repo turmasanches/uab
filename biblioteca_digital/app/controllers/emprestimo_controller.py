@@ -12,8 +12,24 @@ def verificar_permissao(papeis_permitidos):
 @emprestimo_bp.route('/emprestimo/gerenciar', methods=['GET'])
 def gerenciar():
     verificar_permissao(['BIBLIOTECARIO', 'ADMIN', 'ADMIN_INICIAL'])
-    emprestimos = EmprestimoModel.buscar_todos()
-    return render_template('emprestimo/gerenciar.html', emprestimos=emprestimos)
+    status = request.args.get('status')
+    filtros = {}
+    if status:
+        filtros['status'] = status
+    
+    emprestimos = EmprestimoModel.buscar_todos(filtros)
+    return render_template('emprestimo/gerenciar.html', emprestimos=emprestimos, status=status)
+
+@emprestimo_bp.route('/emprestimo/buscar_devolvidos', methods=['GET'])
+def buscar_devolvidos():
+    verificar_permissao(['BIBLIOTECARIO', 'ADMIN', 'ADMIN_INICIAL'])
+    data = request.args.get('data')
+    filtros = {'status': 'DEVOLVIDO'}
+    if data:
+        filtros['data_devolucao'] = data
+    
+    emprestimos = EmprestimoModel.buscar_todos(filtros)
+    return render_template('emprestimo/gerenciar.html', emprestimos=emprestimos, status='DEVOLVIDO', data=data)
 
 @emprestimo_bp.route('/emprestimo/solicitar', methods=['POST'])
 def solicitar():

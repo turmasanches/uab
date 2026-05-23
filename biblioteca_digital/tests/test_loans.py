@@ -116,3 +116,78 @@ def test_admin_approves_loan(client, app):
 
     updated_loan = EmprestimoModel.buscar_por_id(1)
     assert updated_loan.status == 'ATIVO'
+
+def test_loan_filters(client, app):
+    with app.app_context():
+        lib = UsuarioModel("Lib", "l@t.com", generate_password_hash("p"), "BIBLIOTECARIO")
+        lib.salvar()
+        reader = UsuarioModel("Reader", "r@t.com", generate_password_hash("p"), "LEITOR")
+        reader.salvar()
+        b1 = LivroModel("B1", "A1", "C1")
+        b1.salvar()
+        b2 = LivroModel("B2", "A2", "C2")
+        b2.salvar()
+        
+        # Loan 1: SOLICITADO
+        l1 = EmprestimoModel(b1.id, reader.id, status='SOLICITADO')
+        l1.registrar_emprestimo()
+        # Loan 2: ATIVO
+        l2 = EmprestimoModel(b2.id, reader.id, status='ATIVO')
+        l2.registrar_emprestimo()
+
+    with client.session_transaction() as sess:
+        sess['usuario_id'] = lib.id
+        sess['papel'] = 'BIBLIOTECARIO'
+        sess['nome'] = 'Lib'
+    
+    # Check filter: SOLICITADO
+    resp = client.get('/emprestimo/gerenciar?status=SOLICITADO')
+    assert b"bg-info" in resp.data
+    assert b"bg-primary" not in resp.data
+    
+    # Check filter: ATIVO
+    resp = client.get('/emprestimo/gerenciar?status=ATIVO')
+    assert b"bg-primary" in resp.data
+    assert b"bg-info" not in resp.data
+
+def test_devolutions_search(client, app):
+    with app.app_context():
+        lib = UsuarioModel("Lib", "l@t.com", generate_password_hash("p"), "BIBLIOTECARIO")
+        lib.salvar()
+        reader = UsuarioModel("Reader", "r@t.com", generate_password_hash("p"), "LEITOR")
+        reader.salvar()
+        b1 = LivroModel("B1", "A1", "C1")
+        b1.salvar()
+        
+        # Loan: DEVOLVIDO with date
+        l1 = EmprestimoModel(b1.id, reader.id, status='DEVOLVIDO')
+        l1.registrar_emprestimo()
+        l1.finalizar_emprestimo() # This sets data_devolucao
+        
+        dev_date = l1.data_devolucao.split(' ')[0]
+
+    with client.session_transaction() as sess:
+        sess['usuario_id'] = lib.id
+        sess['papel'] = 'BIBLIOTECARIO'
+        sess['nome'] = 'Lib'
+    
+    # Search by date
+    resp = client.get(f'/emprestimo/buscar_devolvidos?data={dev_date}')
+    assert b"DEVOLVIDO" in resp.data
+    
+    # Search by invalid date
+    resp = client.get('/emprestimo/buscar_devolvidos?data=2020-01-01')
+    assert b"DEVOLVIDO" not in resp.data
+
+def test_devolutions_search_access(client, app):
+    # LEITOR cannot access
+    with app.app_context():
+        reader = UsuarioModel("Reader", "r@t.com", generate_password_hash("p"), "LEITOR")
+        reader.salvar()
+    
+    with client.session_transaction() as sess:
+        sess['usuario_id'] = reader.id
+        sess['papel'] = 'LEITOR'
+    
+    resp = client.get('/emprestimo/buscar_devolvidos')
+    assert resp.status_code == 403

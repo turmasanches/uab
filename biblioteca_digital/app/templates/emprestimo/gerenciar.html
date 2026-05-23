@@ -3,6 +3,29 @@
 {% block content %}
 <h2>Gerenciar Empréstimos</h2>
 
+<div class="mb-3">
+    <a href="{{ url_for('emprestimo.gerenciar') }}" class="btn btn-outline-primary">Todos</a>
+    <a href="{{ url_for('emprestimo.gerenciar', status='SOLICITADO') }}" class="btn btn-outline-info">Aguardando Aprovação</a>
+    <a href="{{ url_for('emprestimo.gerenciar', status='ATIVO') }}" class="btn btn-outline-primary">Emprestados</a>
+    <a href="{{ url_for('emprestimo.buscar_devolvidos') }}" class="btn btn-outline-secondary">Devolvidos</a>
+</div>
+
+{% if status == 'DEVOLVIDO' %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Buscar Devoluções</h5>
+        <form action="{{ url_for('emprestimo.buscar_devolvidos') }}" method="GET" class="row g-3">
+            <div class="col-auto">
+                <input type="date" name="data" class="form-control" value="{{ data or '' }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
 <table class="table table-striped">
     <thead>
         <tr>

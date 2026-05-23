@@ -6,7 +6,7 @@ Sistema web para gerenciamento de biblioteca digital, focado em controle de acer
 - Autenticação e cadastro de leitores.
 - Gerenciamento de administradores e bibliotecários.
 - Catálogo de livros com busca.
-- Fluxo de empréstimo (solicitação, aprovação e devolução).
+- Fluxo de empréstimo (solicitação, aprovação, devolução, filtros de status e busca de devoluções por data).
 - Relatórios e métricas do sistema.
 
 ## Tecnologias

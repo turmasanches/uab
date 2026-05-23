@@ -183,7 +183,7 @@ ROTA GET /catalogo:
 RECEBER parametros_de_busca
 CHAMAR livro_model.buscar_todos(parametros)
 RENDERIZAR template 'catalogo.html' com resultados
-# A opção para o cadastro de livros deve estar disponível no menu para usuários com papel 'ADMIN' ou 'BIBLIOTECARIO'.
+# A opção para o cadastro de livros e gerenciamento de empréstimos deve estar disponível no menu para usuários com papel 'ADMIN' ou 'BIBLIOTECARIO'.
 ROTA POST /livro/cadastrar:
 VERIFICAR permissao ('BIBLIOTECARIO', 'ADMIN')
 RECEBER dados
@@ -198,15 +198,19 @@ ROTA POST /emprestimo/solicitar:
 VERIFICAR permissao ('LEITOR')
 VERIFICAR se livro_model.status == 'DISPONIVEL'
 CRIAR emprestimo_model com status 'SOLICITADO'
+ATUALIZAR livro_model para 'REQUISITADO'
 ROTA POST /emprestimo/aprovar:
-VERIFICAR permissao ('BIBLIOTECARIO')
+VERIFICAR permissao ('BIBLIOTECARIO', 'ADMIN')
 ATUALIZAR emprestimo_model para 'ATIVO'
 ATUALIZAR livro_model para 'EMPRESTADO'
 GERAR log
 ROTA POST /emprestimo/devolver:
-VERIFICAR permissao ('BIBLIOTECARIO')
+VERIFICAR permissao ('BIBLIOTECARIO', 'ADMIN')
 ATUALIZAR emprestimo_model para 'DEVOLVIDO'
 ATUALIZAR livro_model para 'DISPONIVEL'
+# Novas funcionalidades:
+# 1. Filtros no gerenciamento de empréstimo: 'Aguardando Aprovação' (status = SOLICITADO) e 'Emprestados' (status = ATIVO).
+# 2. Novo formulário de pesquisa para 'Devolvidos' (status = DEVOLVIDO) por data de devolução, disponível para ADMIN e BIBLIOTECARIO via menu.
 
 `biblioteca_digital/app/controllers/relatorio_controller.py`
 

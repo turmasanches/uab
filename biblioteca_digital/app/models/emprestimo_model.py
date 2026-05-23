@@ -66,16 +66,29 @@ class EmprestimoModel:
         return None
 
     @staticmethod
-    def buscar_todos():
+    def buscar_todos(filtros=None):
         conn = conectar_db()
         try:
             cursor = conn.cursor()
-            cursor.execute('''
+            query = '''
                 SELECT e.*, l.titulo as livro_titulo, u.nome as usuario_nome
                 FROM emprestimos e
                 JOIN livros l ON e.livro_id = l.id
                 JOIN usuarios u ON e.usuario_id = u.id
-            ''')
+            '''
+            params = []
+            if filtros:
+                conditions = []
+                if 'status' in filtros:
+                    conditions.append('e.status = ?')
+                    params.append(filtros['status'])
+                if 'data_devolucao' in filtros:
+                    conditions.append('DATE(e.data_devolucao) = ?')
+                    params.append(filtros['data_devolucao'])
+                if conditions:
+                    query += ' WHERE ' + ' AND '.join(conditions)
+
+            cursor.execute(query, params)
             return cursor.fetchall()
         finally:
             conn.close()

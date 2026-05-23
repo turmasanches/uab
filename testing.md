@@ -52,7 +52,7 @@ Os testes utilizarão um banco de dados SQLite em memória (`:memory:`) ou um ar
 |:---|:---|:---|:---|
 | TEST-BOOK-01 | Busca no Catálogo | Alta | Validar se os filtros de busca (título, autor, categoria) retornam os resultados corretos. |
 | TEST-BOOK-02 | Cadastro de Livro (Permissão) | Crítica | Validar se apenas 'BIBLIOTECARIO' ou 'ADMIN' podem cadastrar livros. |
-| TEST-BOOK-03 | Opção de Cadastro no Menu | Alta | Garantir que a opção 'Cadastrar Livro' só apareça para usuários com papel ADMIN ou BIBLIOTECARIO. |
+| TEST-BOOK-03 | Opção de Cadastro e Gestão de Empréstimos no Menu | Alta | Garantir que a opção 'Cadastrar Livro' e 'Gerenciar Empréstimos' só apareça para usuários com papel ADMIN ou BIBLIOTECARIO. |
 | TEST-BOOK-04 | Cadastro com dados incompletos | Média | Garantir que o sistema valide campos obrigatórios no cadastro. |
 
 ### 3.4. Fluxo de Empréstimo (Cenários Críticos) (`emprestimo_controller.py`)
@@ -60,9 +60,15 @@ Os testes utilizarão um banco de dados SQLite em memória (`:memory:`) ou um ar
 | ID | Cenário | Prioridade | Descrição |
 |:---|:---|:---|:---|
 | TEST-LOAN-01 | Solicitação de Empréstimo | Crítica | Validar se um 'LEITOR' pode solicitar um livro disponível. |
-| TEST-LOAN-02 | Livro Indisponível | Crítica | Impedir a solicitação de um livro que não esteja com status 'DISPONIVEL' (validação estrita do valor retornado pelo banco). |
-| TEST-LOAN-03 | Aprovação de Empréstimo | Alta | Validar se o status do livro muda para 'EMPRESTADO' após aprovação do bibliotecário. |
-| TEST-LOAN-04 | Devolução de Livro | Alta | Garantir que o livro volte a ficar 'DISPONIVEL' após a devolução. |
+| TEST-LOAN-02 | Mudança de status para REQUISITADO | Crítica | Validar se o status do livro muda para 'REQUISITADO' logo após a solicitação do leitor. |
+| TEST-LOAN-03 | Livro Indisponível | Crítica | Impedir a solicitação de um livro que não esteja com status 'DISPONIVEL' (validação estrita do valor retornado pelo banco). |
+| TEST-LOAN-04 | Aprovação de Empréstimo (BIBLIOTECARIO) | Alta | Validar se o status do livro muda para 'EMPRESTADO' após aprovação do bibliotecário. |
+| TEST-LOAN-05 | Aprovação de Empréstimo (ADMIN) | Alta | Validar se o status do livro muda para 'EMPRESTADO' após aprovação do administrador. |
+| TEST-LOAN-06 | Devolução de Livro | Alta | Garantir que o livro volte a ficar 'DISPONIVEL' após a devolução. |
+| TEST-LOAN-07 | Filtro 'Aguardando Aprovação' | Alta | Validar se o filtro exibe apenas empréstimos 'SOLICITADO'. |
+| TEST-LOAN-08 | Filtro 'Emprestados' | Alta | Validar se o filtro exibe apenas empréstimos 'ATIVO'. |
+| TEST-LOAN-09 | Busca Devoluções por Data | Alta | Validar busca de empréstimos 'DEVOLVIDO' por data. |
+| TEST-LOAN-10 | Permissão Busca Devoluções | Crítica | Garantir que apenas ADMIN/BIBLIOTECARIO podem buscar devoluções. |
 
 ### 3.5. Relatórios (`relatorio_controller.py`)
 
