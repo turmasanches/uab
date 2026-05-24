@@ -1,13 +1,9 @@
 from flask import Blueprint, request, session, abort, redirect, url_for, flash, render_template
 from app.models.emprestimo_model import EmprestimoModel
 from app.models.livro_model import LivroModel
+from app.utils import verificar_permissao
 
 emprestimo_bp = Blueprint('emprestimo', __name__)
-
-def verificar_permissao(papeis_permitidos):
-    papel_usuario = session.get('papel')
-    if not papel_usuario or papel_usuario not in papeis_permitidos:
-        abort(403)
 
 @emprestimo_bp.route('/emprestimo/gerenciar', methods=['GET'])
 def gerenciar():

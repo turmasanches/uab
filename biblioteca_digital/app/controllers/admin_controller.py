@@ -1,13 +1,9 @@
 from flask import Blueprint, request, session, abort, redirect, url_for, render_template
 from app.models.usuario_model import UsuarioModel
 from werkzeug.security import generate_password_hash
+from app.utils import verificar_permissao
 
 admin_bp = Blueprint('admin', __name__)
-
-def verificar_permissao(papeis_permitidos):
-    papel_usuario = session.get('papel')
-    if not papel_usuario or papel_usuario not in papeis_permitidos:
-        abort(403)
 
 @admin_bp.route('/admin/cadastrar-admin', methods=['GET', 'POST'])
 def cadastrar_admin():
