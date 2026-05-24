@@ -191,3 +191,33 @@ def test_devolutions_search_access(client, app):
     
     resp = client.get('/emprestimo/buscar_devolvidos')
     assert resp.status_code == 403
+
+def test_excluir_solicitacao(client, app):
+    with app.app_context():
+        lib = UsuarioModel("Lib", "l@t.com", generate_password_hash("p"), "BIBLIOTECARIO")
+        lib.salvar()
+        reader = UsuarioModel("Reader", "r@t.com", generate_password_hash("p"), "LEITOR")
+        reader.salvar()
+        b1 = LivroModel("B1", "A1", "C1", status='REQUISITADO')
+        b1.salvar()
+        
+        # Loan: SOLICITADO
+        l1 = EmprestimoModel(b1.id, reader.id, status='SOLICITADO')
+        l1.registrar_emprestimo()
+        
+    with client.session_transaction() as sess:
+        sess['usuario_id'] = lib.id
+        sess['papel'] = 'BIBLIOTECARIO'
+        sess['nome'] = 'Lib'
+    
+    # Exclude loan
+    resp = client.post('/emprestimo/excluir', data={'emprestimo_id': 1}, follow_redirects=True)
+    assert resp.status_code == 200
+    
+    # Verify loan deleted
+    with app.app_context():
+        assert EmprestimoModel.buscar_por_id(1) is None
+        
+        # Verify book available
+        updated_book = LivroModel.buscar_todos({'id': b1.id})[0]
+        assert updated_book.status == 'DISPONIVEL'

@@ -51,6 +51,15 @@ class EmprestimoModel:
             self.status = 'DEVOLVIDO'
         finally:
             conn.close()
+
+    def excluir_solicitacao(self):
+        conn = conectar_db()
+        try:
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM emprestimos WHERE id = ?', (self.id,))
+            conn.commit()
+        finally:
+            conn.close()
         
     @staticmethod
     def buscar_por_id(id):

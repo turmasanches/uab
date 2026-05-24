@@ -75,3 +75,18 @@ def devolver():
             livros[0].atualizar_status('DISPONIVEL')
         
     return redirect(url_for('auth.index'))
+
+@emprestimo_bp.route('/emprestimo/excluir', methods=['POST'])
+def excluir():
+    verificar_permissao(['BIBLIOTECARIO', 'ADMIN', 'ADMIN_INICIAL'])
+    emprestimo_id = request.form.get('emprestimo_id')
+    emprestimo = EmprestimoModel.buscar_por_id(emprestimo_id)
+    
+    if emprestimo and emprestimo.status == 'SOLICITADO':
+        emprestimo.excluir_solicitacao()
+        
+        livros = LivroModel.buscar_todos({'id': emprestimo.livro_id})
+        if livros:
+            livros[0].atualizar_status('DISPONIVEL')
+        
+    return redirect(url_for('emprestimo.gerenciar'))
