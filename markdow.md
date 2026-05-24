@@ -168,12 +168,23 @@ REDIRECIONAR login
 * ação: criar
 * descrição: Implementa o CRUD de Administradores e Bibliotecários, aplicando regras de permissão (Serviço de Usuários).
 * pseudocódigo:
+ROTA GET /admin/cadastrar-admin:
+VERIFICAR permissao ('ADMIN_INICIAL')
+RENDERIZAR template 'admin/cadastrar_usuario.html' com papel_alvo='Administrador'
+
 ROTA POST /admin/cadastrar-admin:
-VERIFICAR se usuario_logado.papel == 'ADMIN_INICIAL'
+VERIFICAR permissao ('ADMIN_INICIAL')
 RECEBER dados, SALVAR usuario_model com papel 'ADMIN'
+REDIREICIONAR para dashboard
+
+ROTA GET /admin/cadastrar-bibliotecario:
+VERIFICAR permissao ('ADMIN_INICIAL', 'ADMIN')
+RENDERIZAR template 'admin/cadastrar_usuario.html' com papel_alvo='Bibliotecário'
+
 ROTA POST /admin/cadastrar-bibliotecario:
-VERIFICAR se usuario_logado.papel IN ('ADMIN_INICIAL', 'ADMIN')
+VERIFICAR permissao ('ADMIN_INICIAL', 'ADMIN')
 RECEBER dados, SALVAR usuario_model com papel 'BIBLIOTECARIO'
+REDIREICIONAR para dashboard
 
 `biblioteca_digital/app/controllers/livro_controller.py`
 
@@ -228,7 +239,23 @@ VERIFICAR permissao ('ADMIN', 'BIBLIOTECARIO')
 EXECUTAR queries para: contagem_emprestimos_periodo, top_livros, distribuicao_categorias
 RENDERIZAR template 'relatorios.html' com os dados consolidados
 
-## Ponto de Entrada
+## Requisitos de Frontend
+
+---
+
+### Comportamento Visual e Acessibilidade
+- **Responsividade**: Layout deve ser fluido e adaptável para desktop, tablet e mobile utilizando Bootstrap grid.
+- **Acessibilidade**:
+  - Utilizar elementos semânticos HTML5 (`<nav>`, `<main>`, `<section>`, `<footer>`).
+  - Garantir contraste adequado entre texto e fundo (WCAG AA).
+  - Adicionar atributos `aria-*` em componentes interativos (formulários, botões, modais).
+  - Garantir foco visível em todos os elementos interativos.
+- **Feedback de Usuário**:
+  - Implementar indicadores de carregamento (spinners) para ações assíncronas (ex: envio de formulário).
+  - Exibir mensagens claras de sucesso e erro (flash messages estilizadas).
+- **Tratamento de Estados**:
+  - Exibir estado "vazio" quando não houver dados (ex: catálogo de livros sem resultados).
+  - Implementar validação client-side básica em formulários.
 
 ---
 
@@ -242,3 +269,9 @@ IMPORTAR Config DE config
 INSTANCIAR app = criar_app()
 SE **name** == '**main**':
 INICIAR app.run(debug=Config.DEBUG_MODE, host='0.0.0.0')
+
+## Refatoração Realizada
+
+### Otimização de Performance com Caching
+- Implementado caching (`functools.lru_cache`) no acesso ao catálogo via `LivroModel.buscar_todos` para reduzir consultas frequentes ao banco de dados.
+- O cache é invalidado (`cache_clear`) automaticamente após o cadastro de um novo livro e após a atualização de status de qualquer livro, garantindo a consistência dos dados em todos os cenários.

@@ -43,8 +43,10 @@ Os testes utilizarão um banco de dados SQLite em memória (`:memory:`) ou um ar
 | ID | Cenário | Prioridade | Descrição |
 |:---|:---|:---|:---|
 | TEST-RBAC-01 | Cadastro de Admin por Admin Inicial | Crítica | Validar se apenas o 'ADMIN_INICIAL' pode criar outros administradores. |
-| TEST-RBAC-02 | Restrição de acesso Admin | Alta | Garantir que um 'LEITOR' não consiga acessar rotas de cadastro de administradores. |
+| TEST-RBAC-02 | Restrição de acesso Admin | Alta | Garantir que um 'LEITOR' não consiga acessar rotas de cadastro de administradores ou bibliotecários. |
 | TEST-RBAC-03 | Cadastro de Bibliotecário | Alta | Validar se 'ADMIN' e 'ADMIN_INICIAL' conseguem criar bibliotecários. |
+| TEST-RBAC-04 | Acesso UI Cadastro Bibliotecário | Alta | Validar se 'ADMIN' e 'ADMIN_INICIAL' conseguem acessar o formulário de cadastro. |
+| TEST-RBAC-05 | Visibilidade Menu 'Cadastrar Bibliotecário' | Alta | Validar se a opção aparece apenas para 'ADMIN' e 'ADMIN_INICIAL'. |
 
 ### 3.3. Catálogo de Livros (`livro_controller.py`)
 
@@ -79,11 +81,22 @@ Os testes utilizarão um banco de dados SQLite em memória (`:memory:`) ou um ar
 | TEST-REP-01 | Acesso a Relatórios | Alta | Validar se usuários sem permissão (LEITOR) são bloqueados. |
 | TEST-REP-02 | Integridade dos Dados | Média | Verificar se a contagem de empréstimos reflete a realidade do banco de dados. |
 
-### 3.6. Segurança e Consistência de Sessão
+### 3.6. Testes de Frontend
 
 | ID | Cenário | Prioridade | Descrição |
 |:---|:---|:---|:---|
-| TEST-SESS-01 | Consistência de Chaves de Sessão | Alta | Validar se as chaves da sessão (`usuario_id`, `nome`, `papel`) estão sendo utilizadas de forma consistente em todo o sistema, evitando chaves alternativas (ex: `user_papel`). |
+| TEST-UI-01 | Responsividade | Alta | Validar layout em diferentes larguras de tela (desktop, tablet, mobile). |
+| TEST-UI-02 | Acessibilidade | Alta | Validar navegação por teclado e presença de atributos ARIA. |
+| TEST-UI-03 | Feedback de Carregamento | Média | Validar exibição de spinner durante envio de formulário (ex: login, solicitação). |
+| TEST-UI-04 | Mensagens de erro/sucesso | Alta | Validar exibição correta de mensagens via flash messages. |
+| TEST-UI-05 | Estado Vazio - Catálogo | Média | Validar mensagem quando busca de livro não retornar resultados. |
+| TEST-UI-06 | Validação Formulário | Alta | Validar validação client-side básica (ex: campos obrigatórios). |
+
+| ID | Cenário | Prioridade | Descrição |
+|:---|:---|:---|:---|
+| TEST-PERF-01 | Cache do Catálogo | Alta | Validar se consultas repetidas ao catálogo utilizam o cache, reduzindo a carga no banco de dados. |
+| TEST-PERF-02 | Invalidação de Cache | Alta | Garantir que o cache é limpo após o cadastro de um novo livro. |
+
 
 ---
 
