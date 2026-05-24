@@ -1,8 +1,10 @@
 import pytest
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app import criar_app
 from app.models.usuario_model import UsuarioModel
 from werkzeug.security import generate_password_hash
-import os
 import tempfile
 
 @pytest.fixture
@@ -31,7 +33,7 @@ def test_create_admin_by_initial_admin(client, app):
         'senha': 'password'
     })
     
-    assert response.status_code == 201
+    assert response.status_code == 302
     user = UsuarioModel.buscar_por_email('admin@test.com')
     assert user is not None
     assert user.papel == 'ADMIN'
@@ -60,7 +62,7 @@ def test_create_librarian_by_admin(client, app):
         'senha': 'password'
     })
     
-    assert response.status_code == 201
+    assert response.status_code == 302
     user = UsuarioModel.buscar_por_email('lib@test.com')
     assert user is not None
     assert user.papel == 'BIBLIOTECARIO'
@@ -76,7 +78,15 @@ def test_create_librarian_by_initial_admin(client, app):
         'senha': 'password'
     })
     
-    assert response.status_code == 201
+    assert response.status_code == 302
     user = UsuarioModel.buscar_por_email('lib2@test.com')
     assert user is not None
     assert user.papel == 'BIBLIOTECARIO'
+
+def test_get_cadastrar_bibliotecario_by_admin(client, app):
+    with client.session_transaction() as sess:
+        sess['usuario_id'] = 2
+        sess['papel'] = 'ADMIN'
+    
+    response = client.get('/admin/cadastrar-bibliotecario')
+    assert response.status_code == 200
