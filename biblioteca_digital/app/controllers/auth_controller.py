@@ -15,10 +15,10 @@ def login():
             session['usuario_id'] = user.id
             session['nome'] = user.nome
             session['papel'] = user.papel
-            # print(f"DEBUG: Login successful for {email}, papel: {user.papel}")
+            flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('auth.index'))
         
-        # print(f"DEBUG: Login failed for {email}")
+        flash('Email ou senha inválidos.', 'danger')
         return redirect(url_for('auth.login'))
     return render_template('login.html')
 
