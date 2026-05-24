@@ -6,7 +6,7 @@ Sistema web para gerenciamento de biblioteca digital, focado em controle de acer
 - Autenticação e cadastro de leitores.
 - Gerenciamento de administradores e bibliotecários.
 - Catálogo de livros com busca.
-- Fluxo de empréstimo (solicitação, aprovação, devolução, filtros de status e busca de devoluções por data).
+- Fluxo de empréstimo (solicitação, aprovação, devolução, exclusão, filtros de status e busca de devoluções por data).
 - Relatórios e métricas do sistema.
 
 ## Tecnologias
@@ -48,4 +48,5 @@ PYTHONPATH=. python -m pytest tests/
 ```
 
 ## Arquitetura
-O sistema segue um padrão MVC simplificado utilizando Blueprints do Flask para modularização dos controladores e modelos de dados para abstração do banco de dados SQLite.
+O sistema segue um padrão MVC simplificado utilizando Blueprints do Flask para modularização dos controladores e modelos de dados para abstração do banco de dados SQLite. 
+O sistema insere automaticamente 30 livros fictícios na primeira inicialização do banco de dados para facilitar testes e demonstrações.

@@ -55,5 +55,16 @@ def inicializar_db():
             VALUES (?, ?, ?, ?)
         ''', ('Admin Inicial', Config.PROPRIETARIO_EMAIL, senha_hash, 'ADMIN_INICIAL'))
     
+    cursor.execute('SELECT COUNT(*) FROM livros')
+    if cursor.fetchone()[0] == 0:
+        livros = [
+            (f'Livro de Teste {i}', f'Autor {i}', 'Categoria Fictícia')
+            for i in range(1, 31)
+        ]
+        cursor.executemany('''
+            INSERT INTO livros (titulo, autor, categoria)
+            VALUES (?, ?, ?)
+        ''', livros)
+    
     conn.commit()
     conn.close()

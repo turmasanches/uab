@@ -88,10 +88,11 @@ ATRIBUTO DEBUG_MODE = os.getenv("DEBUG_MODE", False)
 FUNÇÃO conectar_db():
 RETORNAR conexao_sqlite(Config.DATABASE_PATH)
 FUNÇÃO inicializar_db():
-EXECUTAR SQL de criação de tabelas (Usuarios, Livros, Emprestimos)
-SE Tabela Usuarios estiver vazia:
-INSERIR Usuario(email=Config.PROPRIETARIO_EMAIL, senha=hash(Config.PROPRIETARIO_PASSWORD), tipo='ADMIN_INICIAL')
-
+    EXECUTAR SQL de criação de tabelas (Usuarios, Livros, Emprestimos)
+    SE Tabela Usuarios estiver vazia:
+        INSERIR Usuario(email=Config.PROPRIETARIO_EMAIL, senha=hash(Config.PROPRIETARIO_PASSWORD), tipo='ADMIN_INICIAL')
+    SE Tabela Livros estiver vazia:
+        INSERIR 30 registros na tabela Livros com títulos, autores e categorias fictícias.
 `biblioteca_digital/app/__init__.py`
 
 * ação: criar
@@ -208,9 +209,14 @@ ROTA POST /emprestimo/devolver:
 VERIFICAR permissao ('BIBLIOTECARIO', 'ADMIN')
 ATUALIZAR emprestimo_model para 'DEVOLVIDO'
 ATUALIZAR livro_model para 'DISPONIVEL'
+ROTA POST /emprestimo/excluir:
+VERIFICAR permissao ('BIBLIOTECARIO', 'ADMIN')
+EXCLUIR emprestimo_model SE status == 'SOLICITADO'
+ATUALIZAR livro_model para 'DISPONIVEL'
 # Novas funcionalidades:
 # 1. Filtros no gerenciamento de empréstimo: 'Aguardando Aprovação' (status = SOLICITADO) e 'Emprestados' (status = ATIVO).
 # 2. Novo formulário de pesquisa para 'Devolvidos' (status = DEVOLVIDO) por data de devolução, disponível para ADMIN e BIBLIOTECARIO via menu.
+# 3. Exclusão de solicitação de empréstimo (status = SOLICITADO), disponível para ADMIN e BIBLIOTECARIO via gerenciamento de empréstimos.
 
 `biblioteca_digital/app/controllers/relatorio_controller.py`
 

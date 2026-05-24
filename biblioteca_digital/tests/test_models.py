@@ -86,3 +86,10 @@ def test_emprestimo_model_fluxo():
 def test_emprestimo_model_not_found():
     loan = EmprestimoModel.buscar_por_id(999)
     assert loan is None
+
+def test_livro_model_30_books_insertion():
+    books = LivroModel.buscar_todos({})
+    assert len(books) == 30
+    assert books[0].titulo == "Livro de Teste 1"
+    assert books[29].titulo == "Livro de Teste 30"
+
